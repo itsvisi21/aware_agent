@@ -118,7 +118,7 @@ aware-agent/
 
 - [Development Setup Guide](dev_setup.md) - Detailed setup instructions
 - [Architecture Guide](guide.md) - System architecture and design decisions
-- [API Documentation](docs/api.md) - Backend API specifications
+- [API Documentation](aware-agent-backend/docs/api.md) - Backend API specifications
 - [Frontend Guide](docs/frontend.md) - Frontend development guidelines
 
 ## Development
