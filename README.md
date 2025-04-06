@@ -1,6 +1,41 @@
 # Aware Agent
 
-An intelligent agent-based research pipeline that powers smart workspaces with AI conversations.
+An intelligent agent-based research pipeline that powers smart workspaces with AI conversations. This project combines a modern Next.js frontend with a powerful Python backend to create a comprehensive AI-assisted research and development environment.
+
+## Project Overview
+
+Aware Agent is designed to help users conduct research, analyze information, and develop ideas through intelligent conversation with AI agents. The system uses semantic abstraction and agent orchestration to provide meaningful, context-aware assistance.
+
+### Frontend (Next.js)
+The frontend is built with Next.js 13+ and provides a modern, interactive interface for users to:
+- Engage in natural language conversations with AI agents
+- Visualize semantic relationships and context
+- Manage research tasks and workflows
+- View real-time analysis and insights
+
+**Tech Stack:**
+- Next.js 13+ (App Router)
+- TypeScript
+- Tailwind CSS
+- React Query
+- Zustand (State Management)
+- Shadcn/ui (UI Components)
+
+### Backend (Python)
+The backend is a robust Python service that handles:
+- Natural Language Processing and semantic analysis
+- Agent orchestration and task management
+- Memory and context management
+- Data persistence and retrieval
+
+**Tech Stack:**
+- FastAPI (Web Framework)
+- LangChain (LLM Orchestration)
+- spaCy (NLP)
+- scikit-learn (Machine Learning)
+- SQLAlchemy (Database ORM)
+- Redis (Caching)
+- ChromaDB (Vector Database)
 
 ## Features
 
@@ -15,7 +50,9 @@ An intelligent agent-based research pipeline that powers smart workspaces with A
 ### Prerequisites
 
 - Node.js 18.x or later
+- Python 3.9+
 - npm or yarn
+- pip
 
 ### Installation
 
@@ -25,58 +62,97 @@ An intelligent agent-based research pipeline that powers smart workspaces with A
    cd aware-agent
    ```
 
-2. Install dependencies:
+2. Frontend Setup:
    ```bash
+   cd aware-agent-frontend
    npm install
    # or
    yarn install
    ```
 
-3. Start the development server:
+3. Backend Setup:
    ```bash
-   npm run dev
-   # or
-   yarn dev
+   cd aware-agent-backend
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   pip install -r requirements.txt
    ```
 
-4. Open [http://localhost:3000](http://localhost:3000) in your browser.
+4. Start Development Servers:
+   - Frontend (from aware-agent-frontend directory):
+     ```bash
+     npm run dev
+     # or
+     yarn dev
+     ```
+   - Backend (from aware-agent-backend directory):
+     ```bash
+     uvicorn src.main:app --reload
+     ```
+
+5. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ## Project Structure
 
 ```
 aware-agent/
-├── src/
-│   ├── app/                  # Next.js app directory
-│   │   ├── components/       # React components
-│   │   ├── globals.css       # Global styles
-│   │   ├── layout.tsx        # Root layout
-│   │   └── page.tsx          # Main page
-│   ├── semantic_abstraction/ # Semantic abstraction layer
-│   ├── agent_orchestration/  # Agent orchestration layer
-│   ├── interaction/          # Interaction engine
-│   ├── execution/            # Execution & memory layer
-│   └── types/                # TypeScript type definitions
-├── tests/                    # Test files
-├── public/                   # Static assets
-└── package.json              # Project dependencies
+├── aware-agent-frontend/     # Next.js frontend application
+│   ├── src/
+│   │   ├── app/             # Next.js app directory
+│   │   ├── components/      # React components
+│   │   └── lib/            # Utility functions
+│   └── package.json
+│
+├── aware-agent-backend/      # Python backend service
+│   ├── src/
+│   │   ├── api/            # FastAPI routes
+│   │   ├── core/           # Core business logic
+│   │   ├── models/         # Data models
+│   │   └── services/       # Service layer
+│   └── requirements.txt
+│
+└── docs/                    # Project documentation
 ```
+
+## Documentation
+
+- [Development Setup Guide](dev_setup.md) - Detailed setup instructions
+- [Architecture Guide](guide.md) - System architecture and design decisions
+- [API Documentation](docs/api.md) - Backend API specifications
+- [Frontend Guide](docs/frontend.md) - Frontend development guidelines
 
 ## Development
 
 ### Running Tests
 
+Frontend:
 ```bash
+cd aware-agent-frontend
 npm test
 # or
 yarn test
 ```
 
+Backend:
+```bash
+cd aware-agent-backend
+pytest
+```
+
 ### Building for Production
 
+Frontend:
 ```bash
+cd aware-agent-frontend
 npm run build
 # or
 yarn build
+```
+
+Backend:
+```bash
+cd aware-agent-backend
+uvicorn src.main:app --host 0.0.0.0 --port 8000
 ```
 
 ## Contributing
@@ -94,5 +170,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## Acknowledgments
 
 - [Next.js](https://nextjs.org/)
+- [FastAPI](https://fastapi.tiangolo.com/)
+- [LangChain](https://github.com/hwchase17/langchain)
 - [Tailwind CSS](https://tailwindcss.com/)
-- [LangChain](https://github.com/hwchase17/langchain) 
+- [spaCy](https://spacy.io/) 
