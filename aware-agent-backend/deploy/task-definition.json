@@ -1,0 +1,70 @@
+{
+    "family": "aware-agent",
+    "networkMode": "awsvpc",
+    "requiresCompatibilities": [
+        "FARGATE"
+    ],
+    "cpu": "1024",
+    "memory": "2048",
+    "executionRoleArn": "arn:aws:iam::your-account-id:role/ecsTaskExecutionRole",
+    "taskRoleArn": "arn:aws:iam::your-account-id:role/aware-agent-task-role",
+    "containerDefinitions": [
+        {
+            "name": "aware-agent",
+            "image": "your-account-id.dkr.ecr.region.amazonaws.com/aware-agent:latest",
+            "essential": true,
+            "portMappings": [
+                {
+                    "containerPort": 8000,
+                    "protocol": "tcp"
+                },
+                {
+                    "containerPort": 8001,
+                    "protocol": "tcp"
+                }
+            ],
+            "environment": [
+                {
+                    "name": "ENVIRONMENT",
+                    "value": "production"
+                },
+                {
+                    "name": "LOG_LEVEL",
+                    "value": "INFO"
+                }
+            ],
+            "secrets": [
+                {
+                    "name": "DATABASE_URL",
+                    "valueFrom": "arn:aws:ssm:region:account-id:parameter/aware-agent/database-url"
+                },
+                {
+                    "name": "REDIS_URL",
+                    "valueFrom": "arn:aws:ssm:region:account-id:parameter/aware-agent/redis-url"
+                },
+                {
+                    "name": "AUTH_SECRET",
+                    "valueFrom": "arn:aws:ssm:region:account-id:parameter/aware-agent/auth-secret"
+                }
+            ],
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "/aware-agent/production",
+                    "awslogs-region": "us-east-1",
+                    "awslogs-stream-prefix": "aware-agent"
+                }
+            },
+            "healthCheck": {
+                "command": [
+                    "CMD-SHELL",
+                    "curl -f http://localhost:8001/health || exit 1"
+                ],
+                "interval": 30,
+                "timeout": 5,
+                "retries": 3,
+                "startPeriod": 60
+            }
+        }
+    ]
+} 
