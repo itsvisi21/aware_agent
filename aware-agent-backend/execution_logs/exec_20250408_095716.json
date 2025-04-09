@@ -1,0 +1,43 @@
+{
+  "execution_id": "exec_20250408_095716",
+  "steps": [
+    {
+      "id": "step_1",
+      "type": "research",
+      "status": "failed",
+      "start_time": "2025-04-08T09:57:16.920880",
+      "end_time": null,
+      "result": null,
+      "error": "Research tasks require either 'content' or 'query' parameter"
+    },
+    {
+      "id": "step_2",
+      "type": "analysis",
+      "status": "pending",
+      "start_time": null,
+      "end_time": null,
+      "result": null,
+      "error": null
+    },
+    {
+      "id": "step_3",
+      "type": "synthesis",
+      "status": "pending",
+      "start_time": null,
+      "end_time": null,
+      "result": null,
+      "error": null
+    }
+  ],
+  "metrics": {
+    "total_time": 0.217372,
+    "step_count": 3,
+    "completed_steps": 0,
+    "failed_steps": 1,
+    "success_rate": 0.0,
+    "average_step_time": 0,
+    "start_time": "2025-04-08T09:57:16.920880",
+    "end_time": "2025-04-08T09:57:17.138252"
+  },
+  "timestamp": "2025-04-08T09:57:17.138252"
+}

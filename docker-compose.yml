@@ -1,0 +1,70 @@
+version: '3.8'
+
+services:
+  aware-agent:
+    build: .
+    ports:
+      - "8000:8000"
+      - "8001:8001"
+    environment:
+      - ENVIRONMENT=development
+      - DEBUG=true
+      - LOG_LEVEL=INFO
+      - DATABASE_URL=postgresql://postgres:password@postgres:5432/aware_agent
+      - REDIS_URL=redis://redis:6379/0
+      - CACHE_TTL=3600
+      - WS_HOST=0.0.0.0
+      - WS_PORT=8000
+      - WS_MAX_CONNECTIONS=1000
+      - MONITORING_PORT=8001
+      - METRICS_PATH=/metrics
+      - HEALTH_PATH=/health
+      - AUTH_SECRET=your-secret-key
+      - RATE_LIMIT=100
+      - RATE_LIMIT_WINDOW=60
+      - BACKUP_DIR=/app/backups
+      - BACKUP_INTERVAL=86400
+      - BACKUP_RETENTION=7
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - ./backups:/app/backups
+    networks:
+      - aware-agent-network
+
+  postgres:
+    image: postgres:12
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=aware_agent
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - aware-agent-network
+
+  redis:
+    image: redis:7.2-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - aware-agent-network
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  aware-agent-network:
+    driver: bridge 

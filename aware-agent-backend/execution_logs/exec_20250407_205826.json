@@ -1,0 +1,77 @@
+{
+  "execution_id": "exec_20250407_205826",
+  "steps": [
+    {
+      "id": "step_1",
+      "type": "research",
+      "status": "completed",
+      "start_time": "2025-04-07T20:58:26.172919",
+      "end_time": "2025-04-07T20:58:26.789470",
+      "result": {
+        "type": "research",
+        "results": [
+          {
+            "source": "source1",
+            "content": "Research result 1"
+          },
+          {
+            "source": "source2",
+            "content": "Research result 2"
+          }
+        ],
+        "confidence": 0.8
+      },
+      "error": null
+    },
+    {
+      "id": "step_2",
+      "type": "analysis",
+      "status": "completed",
+      "start_time": "2025-04-07T20:58:26.789470",
+      "end_time": "2025-04-07T20:58:27.207543",
+      "result": {
+        "type": "analysis",
+        "insights": [
+          {
+            "type": "pattern",
+            "content": "Pattern identified"
+          },
+          {
+            "type": "trend",
+            "content": "Trend observed"
+          }
+        ],
+        "confidence": 0.9
+      },
+      "error": null
+    },
+    {
+      "id": "step_3",
+      "type": "synthesis",
+      "status": "completed",
+      "start_time": "2025-04-07T20:58:27.207543",
+      "end_time": "2025-04-07T20:58:27.510492",
+      "result": {
+        "type": "synthesis",
+        "conclusion": "Synthesized conclusion",
+        "recommendations": [
+          "Recommendation 1",
+          "Recommendation 2"
+        ],
+        "confidence": 0.85
+      },
+      "error": null
+    }
+  ],
+  "metrics": {
+    "total_time": 1.337573,
+    "step_count": 3,
+    "completed_steps": 3,
+    "failed_steps": 0,
+    "success_rate": 1.0,
+    "average_step_time": 0.44585766666666665,
+    "start_time": "2025-04-07T20:58:26.172919",
+    "end_time": "2025-04-07T20:58:27.510492"
+  },
+  "timestamp": "2025-04-07T20:58:27.510851"
+}

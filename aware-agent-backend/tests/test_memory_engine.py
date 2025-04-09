@@ -1,127 +1,112 @@
-"""
-Tests for the memory engine.
-"""
-
 import pytest
-from src.memory_engine import MemoryEngine
-from tests.config import TEST_DATA, TEST_CONFIG
+from pathlib import Path
+from datetime import datetime
+from unittest.mock import Mock, patch
+from src.core.services.memory_engine import MemoryEngine
+from src.core.models.models import Message, ConversationState
 
 @pytest.fixture
-def memory_engine():
-    """Create a memory engine instance for testing."""
-    return MemoryEngine()
+def memory_engine(tmp_path):
+    """Create a memory engine with a temporary storage path."""
+    return MemoryEngine(storage_path=str(tmp_path))
 
-def test_context_storage_and_retrieval(memory_engine):
-    """Test storing and retrieving context."""
-    test_context = {
-        "query": TEST_DATA["research_queries"][0]["query"],
-        "context": TEST_DATA["research_queries"][0]["context"],
-        "semantic_roles": TEST_DATA["semantic_roles"]
-    }
-    
-    # Store context
-    task_id = "test_task_1"
-    memory_engine.store_context(task_id, test_context)
-    
-    # Retrieve context
-    retrieved_context = memory_engine.retrieve_context(task_id)
-    
-    assert retrieved_context is not None
-    assert retrieved_context["query"] == test_context["query"]
-    assert retrieved_context["context"] == test_context["context"]
-    assert retrieved_context["semantic_roles"] == test_context["semantic_roles"]
+@pytest.mark.asyncio
+async def test_memory_engine_initialization(memory_engine, tmp_path):
+    """Test memory engine initialization."""
+    assert memory_engine.storage_path == Path(tmp_path)
+    assert memory_engine.memory_store == {}
 
-def test_action_storage_and_retrieval(memory_engine):
-    """Test storing and retrieving actions."""
-    test_actions = [
-        {"type": "research", "content": "Find papers on Sanskrit programming"},
-        {"type": "analysis", "content": "Analyze quantum cryptography papers"}
-    ]
+@pytest.mark.asyncio
+async def test_message_storage(memory_engine):
+    """Test storing and retrieving messages."""
+    # Create test message
+    test_message = Message(
+        role="user",
+        content="test message",
+        type="text",
+        status="success"
+    )
     
-    # Store actions
-    task_id = "test_task_2"
-    for action in test_actions:
-        memory_engine.store_action(task_id, action)
+    # Store message
+    await memory_engine.store_message("test_conversation", test_message)
     
-    # Retrieve actions
-    retrieved_actions = memory_engine.retrieve_actions(task_id)
-    
-    assert len(retrieved_actions) == len(test_actions)
-    assert retrieved_actions[0]["type"] == test_actions[0]["type"]
-    assert retrieved_actions[1]["content"] == test_actions[1]["content"]
+    # Retrieve message
+    messages = await memory_engine.get_messages("test_conversation")
+    assert len(messages) == 1
+    assert messages[0].content == "test message"
+    assert messages[0].role == "user"
 
-def test_context_cleanup(memory_engine):
-    """Test context cleanup after retention period."""
-    test_context = {
-        "query": TEST_DATA["research_queries"][1]["query"],
-        "context": TEST_DATA["research_queries"][1]["context"]
-    }
+@pytest.mark.asyncio
+async def test_conversation_state_management(memory_engine):
+    """Test conversation state management."""
+    # Create test conversation state
+    test_state = ConversationState(
+        id="test_conversation",
+        messages=[],
+        context_tree={},
+        current_goal="test goal",
+        feedback_history=[],
+        metadata={},
+        created_at=datetime.now().isoformat(),
+        updated_at=datetime.now().isoformat()
+    )
     
-    # Store context with short retention period
-    task_id = "test_task_3"
-    memory_engine.store_context(task_id, test_context, retention_period=1)  # 1 second retention
+    # Store state
+    await memory_engine.store_conversation_state(test_state)
     
-    # Wait for retention period to expire
-    import time
-    time.sleep(2)
-    
-    # Attempt to retrieve context
-    retrieved_context = memory_engine.retrieve_context(task_id)
-    
-    assert retrieved_context is None
+    # Retrieve state
+    retrieved_state = await memory_engine.get_conversation_state("test_conversation")
+    assert retrieved_state.id == "test_conversation"
+    assert retrieved_state.current_goal == "test goal"
 
-def test_error_handling(memory_engine):
-    """Test error handling in the memory engine."""
-    # Test invalid task ID
-    assert memory_engine.retrieve_context("nonexistent_task") is None
-    assert memory_engine.retrieve_actions("nonexistent_task") == []
+@pytest.mark.asyncio
+async def test_memory_persistence(memory_engine, tmp_path):
+    """Test memory persistence to disk."""
+    # Create and store test data
+    test_message = Message(
+        role="user",
+        content="test message",
+        type="text",
+        status="success"
+    )
+    await memory_engine.store_message("test_conversation", test_message)
     
-    # Test invalid context storage
-    with pytest.raises(Exception):
-        memory_engine.store_context("", None)
-    
-    # Test invalid action storage
-    with pytest.raises(Exception):
-        memory_engine.store_action("", None)
+    # Create new instance and verify persistence
+    new_engine = MemoryEngine(storage_path=str(tmp_path))
+    messages = await new_engine.get_messages("test_conversation")
+    assert len(messages) == 1
+    assert messages[0].content == "test message"
 
-def test_concurrent_access(memory_engine):
-    """Test concurrent access to the memory engine."""
-    import threading
+@pytest.mark.asyncio
+async def test_memory_cleanup(memory_engine):
+    """Test memory cleanup functionality."""
+    # Store test data
+    test_message = Message(
+        role="user",
+        content="test message",
+        type="text",
+        status="success"
+    )
+    await memory_engine.store_message("test_conversation", test_message)
     
-    def store_context(task_id, context):
-        memory_engine.store_context(task_id, context)
+    # Cleanup memory
+    await memory_engine.cleanup()
     
-    def retrieve_context(task_id):
-        return memory_engine.retrieve_context(task_id)
+    # Verify cleanup
+    messages = await memory_engine.get_messages("test_conversation")
+    assert len(messages) == 0
+
+@pytest.mark.asyncio
+async def test_error_handling(memory_engine):
+    """Test error handling in memory operations."""
+    # Test handling of non-existent conversation
+    messages = await memory_engine.get_messages("non_existent")
+    assert len(messages) == 0
     
-    # Create multiple threads
-    threads = []
-    contexts = []
+    # Test handling of invalid message format
+    with pytest.raises(ValueError):
+        await memory_engine.store_message("test_conversation", "invalid message")
     
-    for i in range(5):
-        context = {
-            "query": f"Test query {i}",
-            "context": {"domain": f"Test domain {i}"}
-        }
-        contexts.append(context)
-        
-        t = threading.Thread(
-            target=store_context,
-            args=(f"concurrent_task_{i}", context)
-        )
-        threads.append(t)
-    
-    # Start all threads
-    for t in threads:
-        t.start()
-    
-    # Wait for all threads to complete
-    for t in threads:
-        t.join()
-    
-    # Verify all contexts were stored correctly
-    for i in range(5):
-        retrieved = memory_engine.retrieve_context(f"concurrent_task_{i}")
-        assert retrieved is not None
-        assert retrieved["query"] == contexts[i]["query"]
-        assert retrieved["context"] == contexts[i]["context"] 
+    # Test handling of invalid state format
+    with pytest.raises(ValueError):
+        await memory_engine.store_conversation_state("invalid state") 

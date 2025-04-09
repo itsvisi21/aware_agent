@@ -1,0 +1,15 @@
+{
+  "94bd31e8-654c-4ef3-8895-0dab239e2b1b": {
+    "semantic_analysis_time": 0.0,
+    "context_chaining_time": 0.0,
+    "temporal_analysis_time": 0.0,
+    "role_mapping_time": 0.0,
+    "abstraction_processing_time": 0.0,
+    "agent_planning_time": 0.0,
+    "execution_time": 0.0,
+    "memory_operations_time": 1.1180403232574463,
+    "total_time": 1.1180403232574463,
+    "success": true,
+    "error": null
+  }
+}

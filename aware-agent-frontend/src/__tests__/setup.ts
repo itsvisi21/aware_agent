@@ -1,10 +1,6 @@
 import '@testing-library/jest-dom';
 import { cleanup } from '@testing-library/react';
-import matchers from '@testing-library/jest-dom/matchers';
-import { QueryClient, QueryClientProvider } from 'react-query';
-
-// Extend expect with custom matchers
-expect.extend(matchers);
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 // Create a new QueryClient for each test
 const createTestQueryClient = () => new QueryClient({

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebSocket Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        #messages {
+            height: 300px;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        #messageInput {
+            width: 70%;
+            padding: 5px;
+        }
+        button {
+            padding: 5px 10px;
+            margin-right: 5px;
+        }
+        .error {
+            color: red;
+        }
+        .success {
+            color: green;
+        }
+        .message-type {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>WebSocket Test Client</h1>
+    <div>
+        <label for="conversationId">Conversation ID:</label>
+        <input type="text" id="conversationId" value="test_conversation" placeholder="Enter conversation ID">
+    </div>
+    <div class="message-type">
+        <button onclick="sendAgentStatusRequest()">Get Agent Status</button>
+        <button onclick="sendConversationStateRequest()">Get Conversation State</button>
+    </div>
+    <div id="messages"></div>
+    <input type="text" id="messageInput" placeholder="Type a message...">
+    <button onclick="sendMessage()">Send Message</button>
+    <button onclick="connect()">Connect</button>
+    <button onclick="disconnect()">Disconnect</button>
+
+    <script>
+        let socket = null;
+        const messagesDiv = document.getElementById('messages');
+        const messageInput = document.getElementById('messageInput');
+        const conversationIdInput = document.getElementById('conversationId');
+
+        function connect() {
+            if (socket) {
+                addMessage('Already connected', 'error');
+                return;
+            }
+
+            const conversationId = conversationIdInput.value || 'test_conversation';
+            const wsUrl = `ws://127.0.0.1:8001/ws/${conversationId}`;
+            
+            try {
+                socket = new WebSocket(wsUrl);
+
+                socket.onopen = function(e) {
+                    addMessage('Connected to WebSocket server', 'success');
+                };
+
+                socket.onmessage = function(event) {
+                    try {
+                        const data = JSON.parse(event.data);
+                        addMessage(`Received: ${JSON.stringify(data, null, 2)}`, 'success');
+                    } catch (e) {
+                        addMessage(`Received: ${event.data}`, 'success');
+                    }
+                };
+
+                socket.onclose = function(event) {
+                    addMessage('Disconnected from WebSocket server', 'error');
+                    socket = null;
+                };
+
+                socket.onerror = function(error) {
+                    addMessage(`WebSocket Error: ${error.message || 'Unknown error'}`, 'error');
+                };
+            } catch (error) {
+                addMessage(`Connection Error: ${error.message}`, 'error');
+            }
+        }
+
+        function disconnect() {
+            if (socket) {
+                socket.close();
+                socket = null;
+            } else {
+                addMessage('Not connected', 'error');
+            }
+        }
+
+        function sendMessage() {
+            if (!socket) {
+                addMessage('Not connected to WebSocket server', 'error');
+                return;
+            }
+
+            const message = messageInput.value;
+            if (message) {
+                try {
+                    const messageObj = {
+                        type: "message",
+                        data: message
+                    };
+                    socket.send(JSON.stringify(messageObj));
+                    addMessage(`Sent: ${JSON.stringify(messageObj)}`, 'success');
+                    messageInput.value = '';
+                } catch (error) {
+                    addMessage(`Error sending message: ${error.message}`, 'error');
+                }
+            }
+        }
+
+        function sendAgentStatusRequest() {
+            if (!socket) {
+                addMessage('Not connected to WebSocket server', 'error');
+                return;
+            }
+
+            try {
+                const messageObj = {
+                    type: "agent_status_request"
+                };
+                socket.send(JSON.stringify(messageObj));
+                addMessage(`Sent: ${JSON.stringify(messageObj)}`, 'success');
+            } catch (error) {
+                addMessage(`Error sending agent status request: ${error.message}`, 'error');
+            }
+        }
+
+        function sendConversationStateRequest() {
+            if (!socket) {
+                addMessage('Not connected to WebSocket server', 'error');
+                return;
+            }
+
+            try {
+                const messageObj = {
+                    type: "conversation_state_request"
+                };
+                socket.send(JSON.stringify(messageObj));
+                addMessage(`Sent: ${JSON.stringify(messageObj)}`, 'success');
+            } catch (error) {
+                addMessage(`Error sending conversation state request: ${error.message}`, 'error');
+            }
+        }
+
+        function addMessage(message, type = '') {
+            const messageElement = document.createElement('div');
+            messageElement.textContent = message;
+            if (type) {
+                messageElement.className = type;
+            }
+            messagesDiv.appendChild(messageElement);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        // Connect automatically when the page loads
+        window.onload = connect;
+    </script>
+</body>
+</html> 

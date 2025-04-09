@@ -1,0 +1,1 @@
+{"type": "research", "results": [{"source": "source1", "content": "Research result 1"}, {"source": "source2", "content": "Research result 2"}], "confidence": 0.8, "resource_usage": {"cpu": 0.5, "memory": 0.3, "disk": 0.1}}

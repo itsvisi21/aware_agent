@@ -5,9 +5,9 @@ Revises:
 Create Date: 2023-01-01 00:00:00.000000
 
 """
-from alembic import op
 import sqlalchemy as sa
 
+from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = 'initial'
@@ -26,7 +26,7 @@ def upgrade() -> None:
         sa.Column('messages', sa.JSON(), nullable=False),
         sa.PrimaryKeyConstraint('id')
     )
-    
+
     # Create agents table
     op.create_table(
         'agents',
@@ -37,7 +37,7 @@ def upgrade() -> None:
         sa.Column('config', sa.JSON(), nullable=False),
         sa.PrimaryKeyConstraint('id')
     )
-    
+
     # Create metrics table
     op.create_table(
         'metrics',
@@ -48,7 +48,7 @@ def upgrade() -> None:
         sa.Column('labels', sa.JSON(), nullable=True),
         sa.PrimaryKeyConstraint('id')
     )
-    
+
     # Create indexes
     op.create_index('ix_conversations_created_at', 'conversations', ['created_at'])
     op.create_index('ix_agents_type', 'agents', ['type'])
@@ -62,8 +62,8 @@ def downgrade() -> None:
     op.drop_index('ix_metrics_timestamp')
     op.drop_index('ix_agents_type')
     op.drop_index('ix_conversations_created_at')
-    
+
     # Drop tables
     op.drop_table('metrics')
     op.drop_table('agents')
-    op.drop_table('conversations') 
+    op.drop_table('conversations')
